@@ -33,4 +33,7 @@ public class ClientController {
     public Client getClientById(long id) throws SQLException {
         return clientService.findClientById(id);
     }
+    public ClientService getClientService(){
+        return clientService;
+    }
 }

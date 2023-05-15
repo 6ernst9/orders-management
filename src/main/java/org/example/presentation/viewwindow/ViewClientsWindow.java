@@ -2,6 +2,7 @@ package org.example.presentation.viewwindow;
 
 import org.example.controller.ClientController;
 import org.example.model.Client;
+import org.example.presentation.TableUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -18,18 +19,13 @@ public class ViewClientsWindow {
     private DefaultTableModel tableModel;
     private JTextField searchField;
 
-    public ViewClientsWindow(final ClientController clientController) {
+    public ViewClientsWindow(final ClientController clientController) throws SQLException {
         this.clientController = clientController;
 
         frame = new JFrame("View Clients");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        tableModel = new DefaultTableModel();
-        tableModel.addColumn("Client ID");
-        tableModel.addColumn("Name");
-        tableModel.addColumn("Email");
-        tableModel.addColumn("Age");
-
+        tableModel = TableUtil.createTable(clientController.getClientService().getClientRepository(), Client.class);
         clientTable = new JTable(tableModel);
         clientTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -37,7 +33,6 @@ public class ViewClientsWindow {
         JPanel searchPanel = new JPanel();
         searchField = new JTextField(20);
 
-        getAllClients();
         JButton searchButton = new JButton("Search");
         searchButton.addActionListener(new ActionListener() {
             @Override

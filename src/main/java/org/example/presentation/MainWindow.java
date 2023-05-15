@@ -19,6 +19,7 @@ import org.example.presentation.viewwindow.ViewProductsWindow;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
 
 public class MainWindow {
     private final ClientController clientController;
@@ -29,7 +30,7 @@ public class MainWindow {
     private JButton addProductButton, deleteProductButton, updateProductButton, viewProductButton;
     private JButton addOrderButton, deleteOrderButton, updateOrderButton, viewOrderButton;
 
-    public MainWindow(ClientController clientController, ProductController productController, OrderController orderController) {
+    public MainWindow(ClientController clientController, ProductController productController, OrderController orderController) throws SQLException {
         this.clientController = clientController;
         this.productController = productController;
         this.orderController = orderController;
@@ -74,18 +75,22 @@ public class MainWindow {
         frame.setVisible(true);
     }
 
-    private JButton createButton(final String label) {
+    private JButton createButton(final String label){
         JButton button = new JButton(label);
         button.setFont(new Font("Arial", Font.BOLD, 14));
         button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                handleButtonAction(label);
+            public void actionPerformed(ActionEvent e)  {
+                try {
+                    handleButtonAction(label);
+                } catch (SQLException ex) {
+                    System.out.println(ex.getMessage());
+                }
             }
         });
         return button;
     }
 
-    private void handleButtonAction(String label) {
+    private void handleButtonAction(String label) throws SQLException {
         switch (label) {
             case "Add Client":
                 AddClientWindow addClientWindow = new AddClientWindow(clientController);

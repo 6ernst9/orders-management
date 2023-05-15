@@ -37,7 +37,7 @@ public class OrderService {
         if(order.getProductID() < 0)
             throw new SQLException("Invalid product id. Please try again.");
 
-        Product product = productRepository.findProductById(order.getProductID());
+        Product product = productRepository.findById(order.getProductID());
         if(product != null) order.setPrice(product.getPrice() * order.getQuantity());
 
         assert product != null;
@@ -54,12 +54,12 @@ public class OrderService {
         String timeString = currentTime.format(formatter2);
 
         Bill bill = new Bill(dateString,timeString, order.getClientID(), order.getProductID(), order.getPrice(), order.getQuantity());
-        orderRepository.addOrder(order);
+        orderRepository.add(order);
 
-        Product newProduct = productRepository.findProductById(order.getProductID());
+        Product newProduct = productRepository.findById(order.getProductID());
         newProduct.setQuantity(newProduct.getQuantity() - order.getQuantity());
-        productRepository.updateProduct(newProduct);
-        billRepository.createBill(bill);
+        productRepository.update(newProduct);
+        billRepository.add(bill);
     }
 
     public void updateOrder(Order order) throws SQLException {
@@ -70,31 +70,37 @@ public class OrderService {
         if(order.getProductID() < 0)
             throw new SQLException("Invalid product id. Please try again.");
 
-        Product product = productRepository.findProductById(order.getProductID());
+        Product product = productRepository.findById(order.getProductID());
         if(product != null) order.setPrice(product.getPrice() * order.getQuantity());
 
         assert product != null;
-        if(order.getQuantity() > product.getQuantity())
+        Order oldOrder = orderRepository.findById(order.getId());
+        if(order.getQuantity() > product.getQuantity() + oldOrder.getQuantity())
             throw new SQLException("Quantity not enough. Please try again.");
 
-        Order oldOrder = orderRepository.findOrderById(order.getId());
-        orderRepository.updateOrder(order);
+        orderRepository.update(order);
 
-        Product newProduct = productRepository.findProductById(order.getProductID());
+        Product newProduct = productRepository.findById(order.getProductID());
         newProduct.setQuantity(newProduct.getQuantity() + oldOrder.getQuantity() - order.getQuantity());
-        productRepository.updateProduct(newProduct);
+        productRepository.update(newProduct);
 
     }
 
     public void deleteOrder(Long id) throws SQLException {
         if(id<1) throw new SQLException("Invalid id. Please try again.");
+        Order oldOrder = orderRepository.findById(id);
+        Product product = productRepository.findById(oldOrder.getProductID());
+        int quantity = oldOrder.getQuantity();
 
-        orderRepository.deleteOrder(id);
+        orderRepository.delete(id);
+        product.setQuantity(product.getQuantity() + quantity);
+        productRepository.update(product);
+
     }
 
     public ArrayList<Order> findOrdersByClientId(Long id) throws SQLException{
         if(id<1)  throw new SQLException("Invalid id. Please try again.");
-        Client client = clientRepository.findClientById(id);
+        Client client = clientRepository.findById(id);
         if(client==null){
             throw new SQLException("No client associated with this id");
         }
@@ -103,7 +109,7 @@ public class OrderService {
 
     public ArrayList<Order> findOrdersByProductId(Long id) throws SQLException{
         if(id<1)  throw new SQLException("Invalid id. Please try again.");;
-        Product product = productRepository.findProductById(id);
+        Product product = productRepository.findById(id);
         if(product == null){
             throw new SQLException("No product associated with this id");
         }
@@ -111,11 +117,15 @@ public class OrderService {
     }
 
     public ArrayList<Order> findAllOrders() throws SQLException {
-        return orderRepository.findAllOrders();
+        return orderRepository.findAll();
     }
 
     public Order findOrderById(Long id) throws SQLException {
         if(id<1)  throw new SQLException("Invalid id. Please try again.");;
-        return orderRepository.findOrderById(id);
+        return orderRepository.findById(id);
+    }
+
+    public OrderRepository getOrderRepository(){
+        return orderRepository;
     }
 }

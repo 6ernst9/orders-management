@@ -13,10 +13,11 @@ import org.example.dao.ProductRepository;
 import org.example.dbconnection.DBConnection;
 import org.example.presentation.MainWindow;
 
+import java.sql.SQLException;
+
 public class App
 {
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ) throws SQLException {
         ClientRepository clientRepository = new ClientRepository(DBConnection.getConnection());
         ProductRepository productRepository = new ProductRepository(DBConnection.getConnection());
         OrderRepository orderRepository = new OrderRepository(DBConnection.getConnection());

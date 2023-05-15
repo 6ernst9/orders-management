@@ -1,8 +1,8 @@
 package org.example.presentation.viewwindow;
 
 import org.example.controller.ProductController;
-import org.example.model.Client;
 import org.example.model.Product;
+import org.example.presentation.TableUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -19,18 +19,13 @@ public class ViewProductsWindow {
     private DefaultTableModel tableModel;
     private JTextField searchField;
 
-    public ViewProductsWindow(final ProductController productController) {
+    public ViewProductsWindow(final ProductController productController) throws SQLException {
         this.productController = productController;
 
         frame = new JFrame("View Products");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        tableModel = new DefaultTableModel();
-        tableModel.addColumn("Product ID");
-        tableModel.addColumn("Name");
-        tableModel.addColumn("Price");
-        tableModel.addColumn("Quantity");
-
+        tableModel = TableUtil.createTable(productController.getProductService().getProductRepository(), Product.class);
         productTable = new JTable(tableModel);
         productTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -38,7 +33,6 @@ public class ViewProductsWindow {
         JPanel searchPanel = new JPanel();
         searchField = new JTextField(20);
 
-        getAllProducts();
         JButton searchButton = new JButton("Search");
         searchButton.addActionListener(new ActionListener() {
             @Override

@@ -4,12 +4,15 @@ import org.example.model.Client;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class ClientRepository {
+public class ClientRepository implements DaoRepository {
     private final Connection connection;
     public ClientRepository(Connection connection) {
         this.connection = connection;
     }
-    public void addClient(Client client) throws SQLException {
+
+    @Override
+    public <Type> void add(Type object) throws SQLException {
+        Client client = (Client)object;
         String sql = "INSERT INTO client (name, email, age ) VALUES (?, ?, ?)";
         PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         statement.setString(1, client.getName());
@@ -22,8 +25,9 @@ public class ClientRepository {
             client.setId(resultSet.getLong(1));
         }
     }
-
-    public void updateClient(Client client) throws SQLException {
+    @Override
+    public <Type> void update(Type object) throws SQLException {
+        Client client = (Client)object;
         String sql = "UPDATE client SET name = ?, email = ?, age = ? WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, client.getName());
@@ -32,15 +36,15 @@ public class ClientRepository {
         statement.setLong(4, client.getId());
         statement.executeUpdate();
     }
-
-    public void deleteClient(Long id) throws SQLException {
+    @Override
+    public void delete(Long id) throws SQLException {
         String sql = "DELETE FROM client WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setLong(1, id);
         statement.executeUpdate();
     }
-
-    public ArrayList<Client> findAllClients() throws SQLException {
+    @Override
+    public ArrayList<Client> findAll() throws SQLException {
         ArrayList<Client> clients = new ArrayList<Client>();
         String sql = "SELECT * FROM client";
         Statement statement = connection.createStatement();
@@ -55,7 +59,8 @@ public class ClientRepository {
         }
         return clients;
     }
-    public Client findClientById(Long id) throws SQLException {
+    @Override
+    public Client findById(Long id) throws SQLException {
         String sql = "SELECT * FROM client WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setLong(1, id);

@@ -3,11 +3,11 @@ package org.example.presentation.viewwindow;
 import org.example.controller.OrderController;
 import org.example.model.Order;
 import org.example.model.OrderFilterEnum;
+import org.example.presentation.TableUtil;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -19,19 +19,13 @@ public class ViewOrdersWindow {
     private DefaultTableModel tableModel;
     private JTextField searchField;
 
-    public ViewOrdersWindow(final OrderController orderController) {
+    public ViewOrdersWindow(final OrderController orderController) throws SQLException {
         this.orderController = orderController;
 
         frame = new JFrame("View Orders");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        tableModel = new DefaultTableModel();
-        tableModel.addColumn("Order ID");
-        tableModel.addColumn("Client ID");
-        tableModel.addColumn("Product ID");
-        tableModel.addColumn("Quantity");
-        tableModel.addColumn("Price");
-
+        tableModel = TableUtil.createTable(orderController.getOrderService().getOrderRepository(), Order.class);
         orderTable = new JTable(tableModel);
         orderTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -40,32 +34,22 @@ public class ViewOrdersWindow {
         JPanel searchPanel = new JPanel();
         searchField = new JTextField(20);
 
-        getAllOrdersByFilter(OrderFilterEnum.NONE, "");
         JButton searchButton1 = new JButton("Search");
-        searchButton1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String searchId = searchField.getText();
-                searchOrdersById(searchId);
-            }
+        searchButton1.addActionListener(e -> {
+            String searchId = searchField.getText();
+            searchOrdersById(searchId);
         });
 
         JButton searchButton2 = new JButton("Search by client");
-        searchButton2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String searchId = searchField.getText();
-                getAllOrdersByFilter(OrderFilterEnum.BY_CLIENT_ID, searchId);
-            }
+        searchButton2.addActionListener(e -> {
+            String searchId = searchField.getText();
+            getAllOrdersByFilter(OrderFilterEnum.BY_CLIENT_ID, searchId);
         });
 
         JButton searchButton3 = new JButton("Search by product");
-        searchButton3.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String searchId = searchField.getText();
-                getAllOrdersByFilter(OrderFilterEnum.BY_PRODUCT_ID, searchId);
-            }
+        searchButton3.addActionListener(e -> {
+            String searchId = searchField.getText();
+            getAllOrdersByFilter(OrderFilterEnum.BY_PRODUCT_ID, searchId);
         });
 
         searchPanel.add(new JLabel("Search by ID:"));
@@ -106,6 +90,11 @@ public class ViewOrdersWindow {
     private void getAllOrdersByFilter(OrderFilterEnum filter, String textId) {
         ArrayList<Order> orderList = null;
         long id=0;
+        if(Objects.equals(textId, "") || Objects.equals(textId, " ")){
+            tableModel.setRowCount(0);
+            if(filter!=OrderFilterEnum.NONE)
+                return;
+        }
         if(filter != OrderFilterEnum.NONE){
             id = Long.parseLong(textId);
         }

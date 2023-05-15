@@ -4,12 +4,14 @@ import org.example.model.Product;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class ProductRepository {
+public class ProductRepository implements DaoRepository {
     private final Connection connection;
     public ProductRepository(Connection connection) {
         this.connection = connection;
     }
-    public void addProduct(Product product) throws SQLException {
+    @Override
+    public <Type> void add(Type object) throws SQLException {
+        Product product =(Product) object;
         String sql = "INSERT INTO product (name, price, quantity ) VALUES (?, ?, ?)";
         PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         statement.setString(1, product.getName());
@@ -22,8 +24,9 @@ public class ProductRepository {
             product.setId(resultSet.getLong(1));
         }
     }
-
-    public void updateProduct(Product product) throws SQLException {
+    @Override
+    public <Type> void update(Type object) throws SQLException {
+        Product product =(Product) object;
         String sql = "UPDATE product SET name = ?, price = ?, quantity = ? WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, product.getName());
@@ -32,15 +35,15 @@ public class ProductRepository {
         statement.setLong(4, product.getId());
         statement.executeUpdate();
     }
-
-    public void deleteProduct(Long id) throws SQLException {
+    @Override
+    public void delete(Long id) throws SQLException {
         String sql = "DELETE FROM product WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setLong(1, id);
         statement.executeUpdate();
     }
-
-    public ArrayList<Product> findAllProducts() throws SQLException {
+    @Override
+    public ArrayList<Product> findAll() throws SQLException {
         ArrayList<Product> products = new ArrayList<Product>();
         String sql = "SELECT * FROM product";
         Statement statement = connection.createStatement();
@@ -55,7 +58,8 @@ public class ProductRepository {
         }
         return products;
     }
-    public Product findProductById(Long id) throws SQLException {
+    @Override
+    public Product findById(Long id) throws SQLException {
         String sql = "SELECT * FROM product WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setLong(1, id);

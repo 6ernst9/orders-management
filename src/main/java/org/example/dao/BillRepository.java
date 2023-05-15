@@ -2,20 +2,19 @@ package org.example.dao;
 
 import org.example.model.Bill;
 import org.example.model.BillGenerator;
-import org.example.model.Client;
 import org.example.model.Product;
 
 import java.sql.*;
 import java.util.ArrayList;
 
-public class BillRepository {
+public class BillRepository{
     private final Connection connection;
     private final ProductRepository productRepository;
     public BillRepository(Connection connection, ProductRepository productRepository) {
         this.connection = connection;
         this.productRepository = productRepository;
     }
-    public void createBill(Bill bill) throws SQLException {
+    public void add(Bill bill) throws SQLException {
         String sql = "INSERT INTO bill (datee, time, clientid, productid, price, quantity  ) VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         statement.setString(1, bill.getDate());
@@ -31,11 +30,11 @@ public class BillRepository {
             bill.setId(resultSet.getLong(1));
         }
 
-        Product product = productRepository.findProductById(bill.getProductID());
+        Product product = productRepository.findById(bill.getProductID());
         BillGenerator.generateBill(bill, product.getName(), product.getPrice());
     }
 
-    public ArrayList<Bill> findAllBills() throws SQLException {
+    public ArrayList<Bill> findAll() throws SQLException {
         ArrayList<Bill> bills = new ArrayList<Bill>();
         String sql = "SELECT * FROM bill";
         Statement statement = connection.createStatement();

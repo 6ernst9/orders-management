@@ -19,7 +19,7 @@ public class ClientService {
         if(client.getAge()<18)
             throw new SQLException("Age must be over 18!");
 
-        clientRepository.addClient(client);
+        clientRepository.add(client);
     }
 
     public void updateClient(Client client) throws SQLException {
@@ -30,20 +30,24 @@ public class ClientService {
         if(client.getAge()<18)
             throw new SQLException("Age must be over 18!");
 
-        clientRepository.updateClient(client);
+        clientRepository.update(client);
     }
 
     public void deleteClient(Long id) throws SQLException {
         if(id<1) throw new SQLException("Invalid id. Please try again.");
-        clientRepository.deleteClient(id);
+        clientRepository.delete(id);
     }
 
     public ArrayList<Client> findAllClients() throws SQLException {
-        return clientRepository.findAllClients();
+        return clientRepository.findAll();
     }
 
     public Client findClientById(Long id) throws SQLException {
         if(id<1) throw new SQLException("Invalid id. Please try again.");
-        return clientRepository.findClientById(id);
+        return clientRepository.findById(id);
+    }
+
+    public ClientRepository getClientRepository(){
+        return clientRepository;
     }
 }

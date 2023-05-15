@@ -33,4 +33,8 @@ public class ProductController {
     public Product getProductById(long id) throws SQLException {
         return productService.findProductById(id);
     }
+
+    public ProductService getProductService(){
+        return productService;
+    }
 }

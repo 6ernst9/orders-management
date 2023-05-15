@@ -1,6 +1,5 @@
 package org.example.business_logic;
 
-import com.sun.org.apache.xpath.internal.operations.Or;
 import org.example.dao.OrderRepository;
 import org.example.dao.ProductRepository;
 import org.example.model.Order;
@@ -24,7 +23,7 @@ public class ProductService {
         if(product.getQuantity()<10)
             throw new SQLException("Invalid quantity. Please try again.");
 
-        productRepository.addProduct(product);
+        productRepository.add(product);
     }
 
     public void updateProduct(Product product) throws SQLException {
@@ -35,7 +34,7 @@ public class ProductService {
         if(product.getQuantity()<10)
             throw new SQLException("Invalid quantity. Please try again.");
         ArrayList<Order> orders = orderRepository.findOrdersByProductId(product.getId());
-        Product product1 = productRepository.findProductById(product.getId());
+        Product product1 = productRepository.findById(product.getId());
 
         int quantity=0;
         for(Order order: orders){
@@ -51,12 +50,12 @@ public class ProductService {
                 product.setQuantity( product.getQuantity() - order.getQuantity());
             }
         }
-        productRepository.updateProduct(product);
+        productRepository.update(product);
         if(product.getPrice() != product1.getPrice()){
             for(Order order: orders){
                 if(order.getProductID() == product.getId() ){
                     order.setPrice(order.getQuantity() * product.getPrice());
-                    orderRepository.updateOrder(order);
+                    orderRepository.update(order);
                 }
             }
         }
@@ -64,21 +63,25 @@ public class ProductService {
     public void deleteProduct(Long id) throws SQLException {
         if(id<1)  throw new SQLException("Invalid id. Please try again.");
 
-        productRepository.deleteProduct(id);
-        ArrayList<Order> orders = orderRepository.findAllOrders();
+        productRepository.delete(id);
+        ArrayList<Order> orders = orderRepository.findAll();
         for(Order order : orders){
             if(order.getProductID() == id){
-                orderRepository.deleteOrder(order.getId());
+                orderRepository.delete(order.getId());
             }
         }
     }
 
     public ArrayList<Product> findAllProducts() throws SQLException {
-        return productRepository.findAllProducts();
+        return productRepository.findAll();
     }
 
     public Product findProductById(Long id) throws SQLException {
         if(id<1) throw new SQLException("Invalid id. Please try again.");
-        return productRepository.findProductById(id);
+        return productRepository.findById(id);
+    }
+
+    public ProductRepository getProductRepository(){
+        return productRepository;
     }
 }

@@ -41,4 +41,8 @@ public class OrderController {
     public ArrayList<Order> getOrdersByProductId(long id) throws SQLException {
         return orderService.findOrdersByProductId(id);
     }
+
+    public OrderService getOrderService(){
+        return orderService;
+    }
 }

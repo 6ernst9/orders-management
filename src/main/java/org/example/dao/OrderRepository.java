@@ -4,12 +4,14 @@ import org.example.model.Order;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class OrderRepository {
+public class OrderRepository implements DaoRepository {
     private final Connection connection;
     public OrderRepository(Connection connection) {
         this.connection = connection;
     }
-    public void addOrder(Order order) throws SQLException {
+    @Override
+    public <Type> void add(Type object) throws SQLException {
+        Order order = (Order)object;
         String sql = "INSERT INTO package(clientid, productid, price, quantity) VALUES (?, ?, ?, ?)";
         PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         statement.setLong(1, order.getClientID());
@@ -23,8 +25,9 @@ public class OrderRepository {
             order.setId(resultSet.getLong(1));
         }
     }
-
-    public void updateOrder(Order order) throws SQLException {
+    @Override
+    public <Type> void update(Type object) throws SQLException {
+        Order order = (Order)object;
         String sql = "UPDATE package SET clientid = ?, productid = ?, price = ?, quantity = ? WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setLong(1, order.getClientID());
@@ -34,15 +37,15 @@ public class OrderRepository {
         statement.setLong(5, order.getId());
         statement.executeUpdate();
     }
-
-    public void deleteOrder(Long id) throws SQLException {
+    @Override
+    public void delete(Long id) throws SQLException {
         String sql = "DELETE FROM package WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setLong(1, id);
         statement.executeUpdate();
     }
-
-    public ArrayList<Order> findAllOrders() throws SQLException {
+    @Override
+    public ArrayList<Order> findAll() throws SQLException {
         ArrayList<Order> orders = new ArrayList<Order>();
         String sql = "SELECT * FROM package";
         Statement statement = connection.createStatement();
@@ -58,8 +61,8 @@ public class OrderRepository {
         }
         return orders;
     }
-
-    public Order findOrderById(Long id) throws SQLException {
+    @Override
+    public Order findById(Long id) throws SQLException {
         String sql = "SELECT * FROM package WHERE id = ?";
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setLong(1, id);
